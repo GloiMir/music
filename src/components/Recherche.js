@@ -13,7 +13,7 @@ export default function Recherche() {
         }
         fetch('https://accounts.spotify.com/api/token',params)
         .then(res=>res.json())
-        .then(res=>console.log(res))
+        .then(res=>console.log(res.access_token))
     },[])
 
     const [titre, setTitre] = useState('');
