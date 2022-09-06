@@ -98,8 +98,10 @@ const CLIENT_SECRET = "8d2ccff09951406ba467592c4d5d1117"
 export default function Recherche() {
     const [searchInput, setSearchInput] = useState("")
     const [accessToken, setAccessToken] = useState("")
-    const [artistId,setArtisteId] = useState('')
+    const [artistId, setArtisteId] = useState('')
     const [albums, setAlbums] = useState([]);
+    const [albumId,setAlbumId] = useState('7AFT8fGI07iOK064OqxItM')
+    const [showIframe,setShowIframe] = useState(false)
 
     useEffect(() => {
         //API access token
@@ -113,7 +115,7 @@ export default function Recherche() {
         fetch('https://accounts.spotify.com/api/token', authParams)
             .then(result => result.json())
             .then(data => setAccessToken(data.access_token))
-    },[])
+    }, [])
 
     async function search() {
         let searchParameters = {
@@ -125,9 +127,9 @@ export default function Recherche() {
         }
         fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=artist', searchParameters)
             .then(response => response.json())
-            .then(data =>setArtisteId(data.artists.items[0].id))
+            .then(data => setArtisteId(data.artists.items[0].id))
     }
-    useEffect(()=>{
+    useEffect(() => {
         let searchParameters = {
             method: 'GET',
             headers: {
@@ -135,10 +137,11 @@ export default function Recherche() {
                 Authorization: 'Bearer ' + accessToken
             }
         }
-        fetch('https://api.spotify.com/v1/artists/'+artistId+'/albums?include_groups=album&market=US&limit=50',searchParameters)
-            .then(response=>response.json())
-            .then(data=>setAlbums(data.items))
-    },[accessToken,artistId])
+        fetch('https://api.spotify.com/v1/artists/' + artistId + '/albums?include_groups=album&market=US&limit=50', searchParameters)
+            .then(response => response.json())
+            .then(data => setAlbums(data.items))
+        console.log(albums)
+    }, [accessToken, artistId, albums])
 
     return (
         <div>
@@ -147,7 +150,7 @@ export default function Recherche() {
                     <FormControl
                         placeholder='Search for artist'
                         type='input'
-                        onChange={(event) => setSearchInput(event.target.value)}
+                        onChange={(event) =>{setSearchInput(event.target.value);}}
                     />
                     <Button onClick={search}>Search</Button>
                 </InputGroup>
@@ -155,17 +158,21 @@ export default function Recherche() {
             <TabContainer>
                 <Row className='mx-2 row row-cols-4'>
                     {
-                        albums && albums.map((item,index)=>{
-                            return(
+                        albums && albums.map((item, index) => {
+                            return (
                                 <Card>
-                                    <Card.Img src={item.images[0].url} />
+                                    <Card.Img src={item.images[0].url} onClick={()=>{setAlbumId(item.id); setShowIframe(true)}} />
                                     <Card.Body>
                                         <Card.Title>{item.name}</Card.Title>
                                     </Card.Body>
                                 </Card>
                             )
                         })
-                    }  
+                    }
+                    {                
+                        showIframe &&  <iframe  src={"https://open.spotify.com/embed/album/"+albumId+"?utm_source=generator"} width="100%" height="380" frameBorder="0" allowFullScreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe> 
+                    } 
+
                 </Row>
 
             </TabContainer>
